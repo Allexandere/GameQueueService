@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  db:
+    image: "postgres:alpine"
+    container_name: db
+    volumes:
+      - queue-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: queue
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  game-queue-server:
+    build: .
+    container_name: game-queue-server
+
+    environment:
+      FILES_TMP_FOLDERS: ""
+      API_PREFIX: https://api.web3.storage
+      UPLOAD_ENDPOINT: /upload
+      DB_SERVER: db
+      POSTGRES_DB: queue
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      MODEL_DETECT_ENDPOINT: detect
+      API_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEZkQmVBOTBBYzU0NUQ0MTNBNDQxNTViRjQ0MTMyMTUyODM1OTExMDUiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NDQxMTM2NjQ1NzcsIm5hbWUiOiJNYXRjaE1ha2luZyBzZXJ2aWNlIn0.eKHFO4RyAEthkoGzTdOfYSIAnG9gnBKSoWPt2MGt7iU
+    ports:
+      - 8082:8082
+    links:
+      - db
+    depends_on:
+      - db
+
+volumes:
+  queue-data:
