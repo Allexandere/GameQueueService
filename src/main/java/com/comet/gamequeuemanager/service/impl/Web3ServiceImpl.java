@@ -4,7 +4,6 @@ import com.comet.gamequeuemanager.adapters.Web3StorageAdapter;
 import com.comet.gamequeuemanager.service.Web3Service;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
