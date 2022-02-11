@@ -6,13 +6,10 @@ import com.comet.gamequeuemanager.dto.QueueCreationRequestDto;
 import com.comet.gamequeuemanager.dto.QueueFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.UUID;
-import java.util.stream.Stream;
 
 class PlayerServiceTest extends BaseTest {
 
@@ -23,10 +20,10 @@ class PlayerServiceTest extends BaseTest {
         UUID playerId = UUID.randomUUID();
         PlayerDto player = new PlayerDto(playerId);
         QueueFile queue = queueService.createQueueFile(new QueueCreationRequestDto(capacity));
-        QueueFile savedPlayerQueue = playerService.addPlayerToQueue(player, queue.getId());
-        QueueFile savedQueue = queueService.readQueueFile(queue.getId());
+        playerService.addPlayerToQueue(player, queue.getId());
+        QueueFile savedPlayerQueue = queueService.readQueueFile(queue.getId());
 
-        Assertions.assertEquals(1, savedQueue.getPlayersAssigned().size());
+        Assertions.assertEquals(1, savedPlayerQueue.getPlayersAssigned().size());
         Assertions.assertEquals(player.getId(), savedPlayerQueue.getPlayersAssigned().get(0).getId());
     }
 

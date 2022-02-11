@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.UUID;
 
 class CloudFileServiceTest extends BaseTest {
+
     @Test
     void testFileLoading(){
         UUID queueId = UUID.randomUUID();
@@ -16,4 +17,5 @@ class CloudFileServiceTest extends BaseTest {
 
         Assertions.assertTrue(loadedQueue.exists());
     }
+
 }

@@ -1,5 +1,6 @@
 package com.comet.gamequeuemanager;
 
+import com.comet.gamequeuemanager.repository.QueueRepository;
 import com.comet.gamequeuemanager.service.CloudFileService;
 import com.comet.gamequeuemanager.service.PlayerService;
 import com.comet.gamequeuemanager.service.QueueService;
@@ -29,6 +30,8 @@ public class BaseTest {
     protected Web3Service web3Service;
     @Autowired
     protected CloudFileService cloudFileService;
+    @Autowired
+    protected QueueRepository queueRepository;
 
     @BeforeEach
     void setTmpFolder() {

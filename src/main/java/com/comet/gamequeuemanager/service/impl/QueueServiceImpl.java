@@ -47,14 +47,15 @@ public class QueueServiceImpl implements QueueService {
         try {
             File queueFile = new File(tmpFolder + id.toString() + fileEnding);
             mapper.writeValue(queueFile, queueFileObject);
-            log.info("Created file with contents: " + queueFile.toString());
+            log.info("Created queue file: " + queueFile.getAbsolutePath());
             String cid = web3StorageAdapter.uploadFile(queueFile);
+            log.info("CID of uploaded file: " + cid);
             QueueObject queueEntity = new QueueObject(queueFileObject.getId(), cid);
             queueRepository.save(queueEntity);
             queueFile.delete();
             return queueFileObject;
         } catch (IOException | UnirestException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -66,7 +67,7 @@ public class QueueServiceImpl implements QueueService {
         try {
             File queueFile = cLoudFileService.loadFileByUrl(web3Service.getFileUrl(cid), queueId);
             QueueFile queueObject = mapper.readValue(queueFile, QueueFile.class);
-            log.info("Read queue file with contents: " + queueFile.toString());
+            log.info("Read queue file: " + queueFile.getAbsolutePath());
             queueFile.delete();
             return queueObject;
         } catch (IOException e) {
@@ -77,15 +78,13 @@ public class QueueServiceImpl implements QueueService {
 
     @Override
     public QueueFile updateQueue(QueueFile queue) {
-        String cid = queueRepository.findById(queue.getId()).get().getCid();
         try {
-            cLoudFileService.loadFileByUrl(web3Service.getFileUrl(cid), queue.getId());
-            File queueFile = new File(tmpFolder + queue.getId().toString() + fileEnding);
+            File queueFile = new File(tmpFolder + queue.getId() + fileEnding);
             mapper.writeValue(queueFile, queue);
             String newCid = web3StorageAdapter.uploadFile(queueFile);
             QueueObject updatedQueueObject = new QueueObject(queue.getId(), newCid);
             queueRepository.save(updatedQueueObject);
-            log.info("Created file with contents: " + queue.toString());
+            log.info("Updated queue, new version: " + queue);
             queueFile.delete();
             return queue;
         } catch (IOException | UnirestException e) {
@@ -97,12 +96,11 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public QueueFile clearQueue(UUID queueId) {
         queueValidator.validateId(queueId);
-        String cid = queueRepository.findById(queueId).get().getCid();
-        File queueFile = cLoudFileService.loadFileByUrl(web3Service.getFileUrl(cid), queueId);
+        File queueFile = new File(tmpFolder + queueId + fileEnding);
         QueueFile queueFileObject = this.readQueueFromFile(queueFile);
         queueFileObject.getPlayersAssigned().clear();
         this.updateQueue(queueFileObject);
-        log.info("Cleared queue file with contents: " + queueFile.toString());
+        log.info("Cleared queue: " + queueFile.toString());
         return queueFileObject;
     }
 
@@ -110,10 +108,10 @@ public class QueueServiceImpl implements QueueService {
     public QueueFile readQueueFromFile(File queueFIle) {
         try {
             QueueFile queueFile = mapper.readValue(queueFIle, QueueFile.class);
-            log.info("Read queue from file with contents: " + queueFile.toString());
+            log.info("Read queue from file: " + queueFIle.getAbsolutePath());
             return queueFile;
         } catch (IOException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return null;
         }
     }

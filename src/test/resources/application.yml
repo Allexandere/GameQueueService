@@ -2,11 +2,6 @@ server:
   port: 8082
 
 spring:
-  datasource:
-    url: jdbc:postgresql://${DB_SERVER}/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-
   jpa:
     show-sql: false
     generate-ddl: true
@@ -20,7 +15,13 @@ files-path: "src/test/resources/tmp-files/"
 
 web3:
   storage:
-    token: ${API_TOKEN}
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEZkQmVBOTBBYzU0NUQ0MTNBNDQxNTViRjQ0MTMyMTUyODM1OTExMDUiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NDQxMTM2NjQ1NzcsIm5hbWUiOiJNYXRjaE1ha2luZyBzZXJ2aWNlIn0.eKHFO4RyAEthkoGzTdOfYSIAnG9gnBKSoWPt2MGt7iU
     api:
       prefix: "https://api.web3.storage"
       upload-endpoint: "/upload"
+
+junit:
+  jupiter:
+    execution:
+      timeout:
+        mode: "disabled"

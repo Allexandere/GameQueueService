@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.File;
 
 class Web3ServiceTest extends BaseTest {
+
     @ParameterizedTest
     @ValueSource(strings = {"8ef9592d-8220-4299-9e76-c4c8c875c104",
                             "bf958077-a767-4b80-9110-66491bad7e8a"})
@@ -18,4 +19,5 @@ class Web3ServiceTest extends BaseTest {
 
         Assertions.assertNotNull(cid);
     }
+
 }

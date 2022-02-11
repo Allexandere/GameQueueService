@@ -19,15 +19,12 @@ services:
     container_name: game-queue-server
 
     environment:
-      FILES_TMP_FOLDERS: ""
-      API_PREFIX: https://api.web3.storage
-      UPLOAD_ENDPOINT: /upload
       DB_SERVER: db
       POSTGRES_DB: queue
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       MODEL_DETECT_ENDPOINT: detect
-      API_TOKEN: your web3 storage api key
+      API_TOKEN: #YOUR WEB3 STORAGE API KEY#
     ports:
       - 8082:8082
     links:

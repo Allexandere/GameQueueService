@@ -10,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.util.UUID;
@@ -62,13 +61,24 @@ class QueueServiceTest extends BaseTest {
 
     @Test
     void testQueueCleaning() {
-        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(1));
+        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(5));
 
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
 
-        QueueFile updatedQueue = queueService.updateQueue(createdQueue);
+        String cid = queueRepository.findById(createdQueue.getId()).get().getCid();
+        cloudFileService.loadFileByUrl(web3Service.getFileUrl(cid), createdQueue.getId());
+
+        queueService.updateQueue(createdQueue);
+
+        String newCid = queueRepository.findById(createdQueue.getId()).get().getCid();
+        cloudFileService.loadFileByUrl(web3Service.getFileUrl(newCid), createdQueue.getId());
+
+        QueueFile updatedQueue = queueService.readQueueFile(createdQueue.getId());
+
+        cloudFileService.loadFileByUrl(web3Service.getFileUrl(newCid), createdQueue.getId());
+
         QueueFile cleanedQueue = queueService.clearQueue(updatedQueue.getId());
 
         Assertions.assertEquals(3, updatedQueue.getPlayersAssigned().size());
