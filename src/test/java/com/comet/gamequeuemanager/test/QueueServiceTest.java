@@ -9,21 +9,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 class QueueServiceTest extends BaseTest {
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 10, 20})
-    void testQueueCreation(Integer capacity) {
-        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(capacity));
+    @Test
+    void testQueueCreation() {
+        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(2));
+
+        Mockito.when(cloudFileService.loadFileByUrl(Mockito.anyString(), Mockito.any(UUID.class)))
+                .thenReturn(createQueueFileForTest(QueueFile.builder()
+                        .id(createdQueue.getId())
+                        .capacity(2)
+                        .playersAssigned(List.of())
+                        .build())
+                );
+
         QueueFile queueFileObject = queueService.readQueueFile(createdQueue.getId());
 
-        Assertions.assertEquals(capacity, queueFileObject.getCapacity());
+        Assertions.assertEquals(2, queueFileObject.getCapacity());
     }
 
     @ParameterizedTest
@@ -43,20 +52,18 @@ class QueueServiceTest extends BaseTest {
         );
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 10, 20})
-    void testQueueUpdate(Integer capacity) {
-        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(capacity));
+    @Test
+    void testQueueUpdate() {
+        QueueFile createdQueue = queueService.createQueueFile(new QueueCreationRequestDto(2));
 
-        createdQueue.setCapacity(capacity + 5);
+        createdQueue.setCapacity(7);
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
-
         QueueFile updatedQueue = queueService.updateQueue(createdQueue);
 
         Assertions.assertEquals(3, updatedQueue.getPlayersAssigned().size());
-        Assertions.assertEquals(capacity + 5, updatedQueue.getCapacity());
+        Assertions.assertEquals(7, updatedQueue.getCapacity());
     }
 
     @Test
@@ -66,19 +73,17 @@ class QueueServiceTest extends BaseTest {
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
         createdQueue.getPlayersAssigned().add(new PlayerDto(UUID.randomUUID()));
-
-        String cid = queueRepository.findById(createdQueue.getId()).get().getCid();
-        cloudFileService.loadFileByUrl(web3Service.getFileUrl(cid), createdQueue.getId());
-
         queueService.updateQueue(createdQueue);
 
-        String newCid = queueRepository.findById(createdQueue.getId()).get().getCid();
-        cloudFileService.loadFileByUrl(web3Service.getFileUrl(newCid), createdQueue.getId());
+        Mockito.when(cloudFileService.loadFileByUrl(Mockito.anyString(), Mockito.any(UUID.class)))
+                .thenReturn(createQueueFileForTest(QueueFile.builder()
+                        .id(createdQueue.getId())
+                        .capacity(5)
+                        .playersAssigned(createdQueue.getPlayersAssigned())
+                        .build())
+                );
 
         QueueFile updatedQueue = queueService.readQueueFile(createdQueue.getId());
-
-        cloudFileService.loadFileByUrl(web3Service.getFileUrl(newCid), createdQueue.getId());
-
         QueueFile cleanedQueue = queueService.clearQueue(updatedQueue.getId());
 
         Assertions.assertEquals(3, updatedQueue.getPlayersAssigned().size());

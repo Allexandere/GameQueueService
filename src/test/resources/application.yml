@@ -12,16 +12,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 files-path: "src/test/resources/tmp-files/"
-
-web3:
-  storage:
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEZkQmVBOTBBYzU0NUQ0MTNBNDQxNTViRjQ0MTMyMTUyODM1OTExMDUiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NDQxMTM2NjQ1NzcsIm5hbWUiOiJNYXRjaE1ha2luZyBzZXJ2aWNlIn0.eKHFO4RyAEthkoGzTdOfYSIAnG9gnBKSoWPt2MGt7iU
-    api:
-      prefix: "https://api.web3.storage"
-      upload-endpoint: "/upload"
-
-junit:
-  jupiter:
-    execution:
-      timeout:
-        mode: "disabled"

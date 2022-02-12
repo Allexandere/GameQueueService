@@ -7,6 +7,7 @@ import com.comet.gamequeuemanager.entity.QueueObject;
 import com.comet.gamequeuemanager.repository.QueueRepository;
 import com.comet.gamequeuemanager.service.CloudFileService;
 import com.comet.gamequeuemanager.service.QueueService;
+import com.comet.gamequeuemanager.service.Web3Service;
 import com.comet.gamequeuemanager.service.validator.QueueValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -37,25 +38,32 @@ public class QueueServiceImpl implements QueueService {
     @Autowired
     private CloudFileService cLoudFileService;
     @Autowired
-    private Web3ServiceImpl web3Service;
+    private Web3Service web3Service;
 
     @Override
     public QueueFile createQueueFile(QueueCreationRequestDto queueCreationRequestDto) {
         queueValidator.validateQueueDto(queueCreationRequestDto);
+
         UUID id = UUID.randomUUID();
         QueueFile queueFileObject = new QueueFile(id, queueCreationRequestDto.getCapacity());
+
         try {
             File queueFile = new File(tmpFolder + id.toString() + fileEnding);
             mapper.writeValue(queueFile, queueFileObject);
+
             log.info("Created queue file: " + queueFile.getAbsolutePath());
+
             String cid = web3StorageAdapter.uploadFile(queueFile);
+
             log.info("CID of uploaded file: " + cid);
+
             QueueObject queueEntity = new QueueObject(queueFileObject.getId(), cid);
             queueRepository.save(queueEntity);
-            queueFile.delete();
+
             return queueFileObject;
         } catch (IOException | UnirestException e) {
             log.error(e.getMessage());
+
             return null;
         }
     }
@@ -63,15 +71,19 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public QueueFile readQueueFile(UUID queueId) {
         queueValidator.validateId(queueId);
+
         String cid = queueRepository.findById(queueId).get().getCid();
+
         try {
             File queueFile = cLoudFileService.loadFileByUrl(web3Service.getFileUrl(cid), queueId);
             QueueFile queueObject = mapper.readValue(queueFile, QueueFile.class);
+
             log.info("Read queue file: " + queueFile.getAbsolutePath());
-            queueFile.delete();
+
             return queueObject;
         } catch (IOException e) {
             log.info(e.getMessage());
+
             return null;
         }
     }
@@ -81,14 +93,18 @@ public class QueueServiceImpl implements QueueService {
         try {
             File queueFile = new File(tmpFolder + queue.getId() + fileEnding);
             mapper.writeValue(queueFile, queue);
+
             String newCid = web3StorageAdapter.uploadFile(queueFile);
             QueueObject updatedQueueObject = new QueueObject(queue.getId(), newCid);
+
             queueRepository.save(updatedQueueObject);
+
             log.info("Updated queue, new version: " + queue);
-            queueFile.delete();
+
             return queue;
         } catch (IOException | UnirestException e) {
             log.info(e.getMessage());
+
             return null;
         }
     }
@@ -96,11 +112,15 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public QueueFile clearQueue(UUID queueId) {
         queueValidator.validateId(queueId);
+
         File queueFile = new File(tmpFolder + queueId + fileEnding);
-        QueueFile queueFileObject = this.readQueueFromFile(queueFile);
+        QueueFile queueFileObject = readQueueFromFile(queueFile);
         queueFileObject.getPlayersAssigned().clear();
+
         this.updateQueue(queueFileObject);
+
         log.info("Cleared queue: " + queueFile.toString());
+
         return queueFileObject;
     }
 
@@ -108,11 +128,20 @@ public class QueueServiceImpl implements QueueService {
     public QueueFile readQueueFromFile(File queueFIle) {
         try {
             QueueFile queueFile = mapper.readValue(queueFIle, QueueFile.class);
+
             log.info("Read queue from file: " + queueFIle.getAbsolutePath());
+
             return queueFile;
         } catch (IOException e) {
             log.error(e.getMessage());
+
             return null;
         }
+    }
+
+    @Override
+    public boolean deleteQueueFile(QueueFile queueFIle) {
+        File file = new File(tmpFolder + queueFIle.getId() + fileEnding);
+        return file.delete();
     }
 }

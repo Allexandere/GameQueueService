@@ -17,12 +17,16 @@ public class QueueController {
 
     @PostMapping
     public String createQueue(@RequestBody QueueCreationRequestDto queueCreationRequestDto){
-        return queueService.createQueueFile(queueCreationRequestDto).getId().toString();
+        QueueFile queueFile = queueService.createQueueFile(queueCreationRequestDto);
+        queueService.deleteQueueFile(queueFile);
+        return queueFile.getId().toString();
     }
 
     @GetMapping("{queueId}")
-    public QueueFile getQueue(@PathVariable(name = "queueId") UUID queueId){
-        return queueService.readQueueFile(queueId);
+    public QueueFile getQueue(@PathVariable(name = "queueId") UUID queueId) {
+        QueueFile queueFile = queueService.readQueueFile(queueId);
+        queueService.deleteQueueFile(queueFile);
+        return queueFile;
     }
 
 }

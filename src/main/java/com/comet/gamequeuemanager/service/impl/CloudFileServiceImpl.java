@@ -22,7 +22,7 @@ public class CloudFileServiceImpl implements CloudFileService {
     public File loadFileByUrl(String url, UUID queueId) {
         try {
             File queueFile = new File(tmpFolder + queueId.toString() + ".json");
-            log.info("Downloaded a file in " + queueFile.getAbsolutePath());
+            log.info("Downloaded a file to " + queueFile.getAbsolutePath());
             FileUtils.copyURLToFile(new URL(url), queueFile);
             return queueFile;
         } catch (IOException e) {

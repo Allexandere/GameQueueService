@@ -12,4 +12,6 @@ public interface QueueService {
     QueueFile updateQueue(QueueFile queue);
     QueueFile clearQueue(UUID queueId);
     QueueFile readQueueFromFile(File queueFIle);
+
+    boolean deleteQueueFile(QueueFile queueFIle);
 }
