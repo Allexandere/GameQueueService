@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       MODEL_DETECT_ENDPOINT: detect
-      API_TOKEN: #YOUR WEB3 STORAGE API KEY#
+      API_TOKEN: ${API_TOKEN}
     ports:
       - 8082:8082
     links:
