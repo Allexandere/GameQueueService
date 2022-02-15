@@ -47,12 +47,12 @@ public class BaseTest {
     void setTmpFolder() {
         Mockito.when(web3StorageAdapter.uploadFile(Mockito.any(File.class))).thenReturn(RandomStringUtils.randomAlphanumeric(30));
         Mockito.when(web3Service.getFileUrl(Mockito.anyString())).thenReturn(RandomStringUtils.randomAlphanumeric(30));
-        ReflectionTestUtils.setField(queueService, "tmpFolder", "src/test/resources/tmp-files/");
+        ReflectionTestUtils.setField(queueService, "tmpFolder", "./src/test/resources/tmp-files/");
     }
 
     @AfterEach
     void clearTmpFolderAndUpdatePath() {
-        File tmpFolder = new File("src/test/resources/tmp-files/");
+        File tmpFolder = new File("./src/test/resources/tmp-files/");
         for (File file : tmpFolder.listFiles()) {
             file.delete();
         }
@@ -60,7 +60,7 @@ public class BaseTest {
 
     @SneakyThrows
     protected File createQueueFileForTest(QueueFile queueObject) {
-        File queueFile = new File("src/test/resources/tmp-files/" + queueObject.getId() + ".json");
+        File queueFile = new File("./src/test/resources/tmp-files/" + queueObject.getId() + ".json");
         mapper.writeValue(queueFile, queueObject);
         return queueFile;
     }

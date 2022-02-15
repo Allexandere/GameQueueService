@@ -38,7 +38,7 @@ class QueueServiceTest extends BaseTest {
     @ParameterizedTest
     @MethodSource("objectFilesProvider")
     void testQueueReading(UUID fileId, QueueFile originalQueueFile) {
-        QueueFile loadedQueueFile = queueService.readQueueFromFile(new File("src/test/resources/test-files/" + fileId + ".json"));
+        QueueFile loadedQueueFile = queueService.readQueueFromFile(new File("./src/test/resources/test-files/" + fileId + ".json"));
 
         Assertions.assertEquals(originalQueueFile, loadedQueueFile);
     }

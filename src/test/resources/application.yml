@@ -11,4 +11,4 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-files-path: "src/test/resources/tmp-files/"
+files-path: "./src/test/resources/tmp-files/"
