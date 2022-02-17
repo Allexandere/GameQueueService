@@ -10,6 +10,7 @@ import com.comet.gamequeuemanager.service.Web3Service;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 
 @SpringBootTest
 @Import(PostgreTestConfig.class)
@@ -42,25 +44,27 @@ public class BaseTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @TempDir
+    protected static Path sharedTmpDir;
+
     @BeforeEach
     @SneakyThrows
     void setTmpFolder() {
         Mockito.when(web3StorageAdapter.uploadFile(Mockito.any(File.class))).thenReturn(RandomStringUtils.randomAlphanumeric(30));
         Mockito.when(web3Service.getFileUrl(Mockito.anyString())).thenReturn(RandomStringUtils.randomAlphanumeric(30));
-        ReflectionTestUtils.setField(queueService, "tmpFolder", "./src/test/resources/tmp-files/");
+        ReflectionTestUtils.setField(queueService, "tmpFolder", sharedTmpDir.toFile().getPath());
     }
 
     @AfterEach
     void clearTmpFolderAndUpdatePath() {
-        File tmpFolder = new File("./src/test/resources/tmp-files/");
-        for (File file : tmpFolder.listFiles()) {
+        for (File file : sharedTmpDir.toFile().listFiles()) {
             file.delete();
         }
     }
 
     @SneakyThrows
     protected File createQueueFileForTest(QueueFile queueObject) {
-        File queueFile = new File("./src/test/resources/tmp-files/" + queueObject.getId() + ".json");
+        File queueFile = new File(sharedTmpDir.toFile().getPath() + queueObject.getId() + ".json");
         mapper.writeValue(queueFile, queueObject);
         return queueFile;
     }
